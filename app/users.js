@@ -10,6 +10,7 @@ const createRouter = () => {
       const users = await User.find({ email });
       res.send(users);
     } catch (err) {
+      console.log(err);
       res.status(500).send(err);
     }
   });
@@ -38,8 +39,9 @@ const createRouter = () => {
     user.generateToken();
     try {
       await user.save({ validateBeforeSave: false });
-    } catch (e) {
-      res.status(500).send(e);
+    } catch (err) {
+      console.log(err);
+      res.sendStatus(500);
     }
 
     res.send(user);
@@ -58,8 +60,9 @@ const createRouter = () => {
     try {
       await user.save({ validateBeforeSave: false });
       return res.send(success);
-    } catch (e) {
-      res.status(500).send(e);
+    } catch (err) {
+      console.log(err);
+      res.sendStatus(500);
     }
   });
   return router;
