@@ -1,6 +1,7 @@
 const { Schema, model } = require('mongoose');
+const bcrypt = require('bcrypt');
 const { nanoid } = require('nanoid');
-
+const SALT_WORK_FACTOR = 10;
 const UserSchema = new Schema({
   username: {
     type: String,
@@ -35,7 +36,7 @@ const UserSchema = new Schema({
           return false;
         }
       },
-      message: 'This user is already registered',
+      message: 'This email is already registered',
     },
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
