@@ -1,0 +1,46 @@
+const express = require('express');
+const auth = require('../middlewares/auth');
+const EventNote = require('../models/EventNote');
+
+const router = express.Router();
+
+const createRouter = () => {
+  router.get('/', auth, async (req, res) => {
+    try {
+      const query = EventNote.find({ creator: req.user._id });
+      query.populate('creator', 'username');
+      const EventNotes = await query;
+      console.log(EventNotes);
+      res.send(EventNotes);
+    } catch (err) {
+      console.log(err);
+      return res.status(400).send(err);
+    }
+  });
+
+  router.post('/', auth, async (req, res) => {
+    const newEvent = { ...req.body };
+    newEvent.creator = req.user._id;
+    const result = new EventNote(newEvent);
+    try {
+      await result.save();
+      res.send(result);
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  });
+
+  router.delete('/:id', auth, async (req, res) => {
+    try {
+      await EventNote.deleteOne({ _id: req.params.id });
+
+      res.send({ _id: req.params.id });
+    } catch (err) {
+      res.sendStatus(400);
+    }
+  });
+  return router;
+};
+
+module.exports = createRouter;
