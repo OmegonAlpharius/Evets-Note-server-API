@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongooseIdValidator = require('mongoose-id-validator');
 const idValidator = require('mongoose-id-validator');
 
 const Schema = mongoose.Schema;
@@ -21,7 +22,9 @@ const EventNoteSchema = new Schema({
     type: String,
   },
 });
-
+EventNoteSchema.plugin(idValidator, {
+  message: 'Bad ID value for {PATH}',
+});
 const EventNote = mongoose.model('EventNote', EventNoteSchema);
 
 module.exports = EventNote;

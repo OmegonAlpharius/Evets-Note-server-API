@@ -1,6 +1,7 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcrypt');
 const { nanoid } = require('nanoid');
+const idValidator = require('mongoose-id-validator');
 const SALT_WORK_FACTOR = 10;
 const UserSchema = new Schema({
   username: {
@@ -71,6 +72,8 @@ UserSchema.methods.checkPassword = function (password) {
 UserSchema.methods.generateToken = function () {
   this.token = nanoid();
 };
-
+UserSchema.plugin(idValidator, {
+  message: 'Bad ID value for {PATH}',
+});
 const User = model('User', UserSchema);
 module.exports = User;

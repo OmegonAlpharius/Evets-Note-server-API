@@ -1,4 +1,5 @@
 const express = require('express');
+const { now } = require('mongoose');
 const auth = require('../middlewares/auth');
 const EventNote = require('../models/EventNote');
 
@@ -6,9 +7,15 @@ const router = express.Router();
 
 const createRouter = () => {
   router.get('/', auth, async (req, res) => {
+    console.log(req.user.subscribes);
     try {
-      const query = EventNote.find({ creator: req.user._id });
-      query.populate('creator', 'username');
+      const query = EventNote.find()
+        .where('creator')
+        .in([req.user._id, ...req.user.subscribes])
+        .where('dateTime')
+        .gte(new Date())
+        .populate('creator', 'username');
+
       const EventNotes = await query;
       console.log(EventNotes);
       res.send(EventNotes);
@@ -33,7 +40,7 @@ const createRouter = () => {
 
   router.delete('/:id', auth, async (req, res) => {
     try {
-      await EventNote.deleteOne({ _id: req.params.id });
+      await EventNote.deleteOne({ _id: req.params.id, creator: req.user._id });
 
       res.send({ _id: req.params.id });
     } catch (err) {

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { nanoid } = require('nanoid');
 const config = require('./config');
+const EventNote = require('./models/EventNote');
 
 const User = require('./models/User');
 
@@ -14,37 +15,44 @@ const db = mongoose.connection;
 
 db.once('open', async () => {
   try {
-    await db.dropCollection('EventNotes');
+    await db.dropCollection('eventnotes');
   } catch (e) {
-    console.log('Collection were not presented. Skipping drop');
+    console.log('Collection Eventnotes  not presented. Skipping drop');
   }
 
   try {
     await db.dropCollection('users');
   } catch (e) {
-    console.log('Collection were not presented. Skipping drop');
+    console.log('Collection users not presented. Skipping drop');
   }
-
-  // const [cpuCategory, hddCategory] = await Category.create({
-  //     title: "CPUs",
-  //     description: "Central Processor Units"
-  // }, {
-  //     title: "HDDs",
-  //     description: "Hard Disk Drives"
-  // });
   try {
-    await User.create(
+    const user1 = await User.create({
+      username: 'user',
+      password: 'user',
+      email: 'user@mail.com',
+      token: nanoid(),
+    });
+
+    const user2 = await User.create({
+      username: 'admin',
+      password: 'admin',
+      email: 'admin@gmail.com',
+      token: nanoid(),
+      subscribes: [user1._id],
+    });
+    await EventNote.create(
       {
-        username: 'user',
-        password: 'user',
-        email: 'user@mail.com',
-        token: nanoid(),
+        title: 'Test title',
+        duration: '3:55',
+        dateTime: new Date(),
+        creator: user1._id,
       },
       {
-        username: 'admin',
-        password: 'admin',
-        email: 'admin@gmail.com',
-        token: nanoid(),
+        title: 'Why do we use it?',
+        duration: '4 hours',
+        dateTime: new Date(),
+        creator: user2._id,
+        __v: 0,
       }
     );
 

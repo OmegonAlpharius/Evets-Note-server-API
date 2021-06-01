@@ -1,4 +1,5 @@
 const express = require('express');
+const auth = require('../middlewares/auth');
 const User = require('../models/User');
 
 const router = express.Router();
@@ -65,6 +66,36 @@ const createRouter = () => {
       res.sendStatus(500);
     }
   });
+
+  router.post('/subscribe', auth, async (req, res) => {
+    const subscribeId = req.query.id;
+
+    if (subscribeId === req.user._id) {
+      return res.send({ message: 'Subscribe success' });
+    }
+
+    try {
+      const isSubscribed = await User.findOne({ _id: subscribeId }).where({
+        subscribes: { $in: [req.user._id] },
+      });
+      if (isSubscribed) {
+        return res.send({ message: 'Subscribe success' });
+      }
+      console.log('isSubscribed', isSubscribed);
+      const subscriber = await User.findOne({ _id: subscribeId });
+      if (!subscriber) {
+        return res.sendStatus(400);
+      }
+
+      subscriber.subscribes.push(req.user._id);
+      await subscriber.save({ validateBeforeSave: false });
+      res.send({ message: 'Subscribe success' });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  });
+
   return router;
 };
 
