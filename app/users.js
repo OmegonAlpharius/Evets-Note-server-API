@@ -84,7 +84,7 @@ const createRouter = () => {
       console.log('isSubscribed', isSubscribed);
       const subscriber = await User.findOne({ _id: subscribeId });
       if (!subscriber) {
-        return res.sendStatus(400);
+        return res.status(400).send({ message: 'User not found' });
       }
 
       subscriber.subscribes.push(req.user._id);

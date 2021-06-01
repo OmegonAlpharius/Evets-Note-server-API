@@ -14,6 +14,7 @@ const createRouter = () => {
         .in([req.user._id, ...req.user.subscribes])
         .where('dateTime')
         .gte(new Date())
+        .sort({ field: 'dateTime' })
         .populate('creator', 'username');
 
       const EventNotes = await query;
