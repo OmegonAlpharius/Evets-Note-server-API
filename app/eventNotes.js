@@ -7,14 +7,13 @@ const router = express.Router();
 
 const createRouter = () => {
   router.get('/', auth, async (req, res) => {
-    console.log(req.user.subscribes);
     try {
       const query = EventNote.find()
         .where('creator')
         .in([req.user._id, ...req.user.subscribes])
         .where('dateTime')
         .gte(new Date())
-        .sort({ field: 'dateTime' })
+        .sort('dateTime')
         .populate('creator', 'username');
 
       const EventNotes = await query;
@@ -39,9 +38,9 @@ const createRouter = () => {
     }
   });
 
-  router.delete('/:id', auth, async (req, res) => {
+  router.delete('/', auth, async (req, res) => {
     try {
-      await EventNote.deleteOne({ _id: req.params.id, creator: req.user._id });
+      await EventNote.deleteOne({ _id: req.query.id, creator: req.user._id });
 
       res.send({ _id: req.params.id });
     } catch (err) {

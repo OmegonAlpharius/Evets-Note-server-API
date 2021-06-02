@@ -7,8 +7,7 @@ const router = express.Router();
 const createRouter = () => {
   router.get('/', async (req, res) => {
     try {
-      const { email } = req.query;
-      const users = await User.find({ email });
+      const users = await User.find({}, 'email');
       res.send(users);
     } catch (err) {
       console.log(err);
@@ -83,6 +82,7 @@ const createRouter = () => {
       }
       console.log('isSubscribed', isSubscribed);
       const subscriber = await User.findOne({ _id: subscribeId });
+      console.log(subscriber);
       if (!subscriber) {
         return res.status(400).send({ message: 'User not found' });
       }
