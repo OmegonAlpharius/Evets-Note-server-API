@@ -26,7 +26,10 @@ const createRouter = () => {
     }
   });
   router.post('/sessions', async (req, res) => {
-    const user = await User.findOne({ username: req.body.username });
+    const user = await User.findOne({ username: req.body.username }).populate(
+      'subscribers',
+      'username'
+    );
 
     const errorMessage = 'Wrong username or password';
 
@@ -43,7 +46,7 @@ const createRouter = () => {
       console.log(err);
       res.sendStatus(500);
     }
-
+    console.log(user);
     res.send(user);
   });
   router.delete('/sessions', async (req, res) => {
@@ -67,32 +70,52 @@ const createRouter = () => {
   });
 
   router.post('/subscribe', auth, async (req, res) => {
-    const subscribeId = req.query.id;
-
-    if (subscribeId === req.user._id) {
+    const subscriberId = req.query.id;
+    const user = req.user;
+    if (subscriberId === user._id) {
       return res.send({ message: 'Subscribe success' });
     }
 
     try {
-      const isSubscribed = await User.findOne({ _id: subscribeId }).where({
-        subscribes: { $in: [req.user._id] },
+      const isSubscribed = await User.findOne({ _id: subscriberId }).where({
+        subscribes: { $in: [user] },
       });
       if (isSubscribed) {
-        return res.send({ message: 'Subscribe success' });
+        return res.send({ message: 'User already subscribed' });
       }
-      console.log('isSubscribed', isSubscribed);
-      const subscriber = await User.findOne({ _id: subscribeId });
-      console.log(subscriber);
+
+      const subscriber = await User.findOne({ _id: subscriberId });
+
       if (!subscriber) {
         return res.status(400).send({ message: 'User not found' });
       }
 
-      subscriber.subscribes.push(req.user._id);
+      subscriber.subscribes.push(user._id);
       await subscriber.save({ validateBeforeSave: false });
+      user.subscribers.push(subscriberId);
+      await user.save({ validateBeforeSave: false });
+
       res.send({ message: 'Subscribe success' });
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
+    }
+  });
+
+  router.get('/subscribers', auth, async (req, res) => {
+    if (!req.user) {
+      return res.sendStatus(400);
+    }
+    res.send(req.user.subscribers);
+  });
+
+  router.post('/unsubscribe', auth, async (req, res) => {
+    try {
+      const users = await User.find({}, 'email');
+      res.send(users);
+    } catch (err) {
+      console.log(err);
+      res.status(500).send(err);
     }
   });
 

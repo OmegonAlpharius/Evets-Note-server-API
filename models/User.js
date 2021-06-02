@@ -47,6 +47,10 @@ const UserSchema = new Schema({
   subscribes: {
     type: [Schema.Types.ObjectId],
   },
+  subscribers: {
+    type: [Schema.Types.ObjectId],
+    ref: 'User',
+  },
 });
 
 UserSchema.pre('save', async function (next) {

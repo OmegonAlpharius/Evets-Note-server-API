@@ -40,6 +40,8 @@ db.once('open', async () => {
       token: nanoid(),
       subscribes: [user1._id],
     });
+    user1.subscribers.push(user2._id);
+    user1.save({ validateBeforeSave: false });
     await EventNote.create(
       {
         title: 'Test title',
