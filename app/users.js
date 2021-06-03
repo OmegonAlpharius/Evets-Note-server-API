@@ -46,7 +46,6 @@ const createRouter = () => {
       console.log(err);
       res.sendStatus(500);
     }
-    console.log(user);
     res.send(user);
   });
   router.delete('/sessions', async (req, res) => {
@@ -103,16 +102,38 @@ const createRouter = () => {
   });
 
   router.get('/subscribers', auth, async (req, res) => {
-    if (!req.user) {
-      return res.sendStatus(400);
-    }
-    res.send(req.user.subscribers);
+    const subscribers = await req.user.populate('subscribers', 'username')
+      .subscribers;
+
+    res.send(subscribers);
   });
 
-  router.post('/unsubscribe', auth, async (req, res) => {
+  router.delete('/subscribers', auth, async (req, res) => {
+    const subscriberId = req.query.id;
+    const user = req.user;
+
     try {
-      const users = await User.find({}, 'email');
-      res.send(users);
+      const subscriber = await User.findById(subscriberId);
+
+      if (!subscriber) {
+        return res.status(400).send({ message: 'User not found' });
+      }
+
+      const modifiedSubscribers = user.subscribers.filter((item) => {
+        return item.toString() !== subscriberId;
+      });
+
+      const modifiedSubscribes = subscriber.subscribes.filter(
+        (item) => item.toString() !== user._id.toString()
+      );
+
+      user.subscribers = modifiedSubscribers;
+      subscriber.subscribes = modifiedSubscribes;
+
+      await user.save({ validateBeforeSave: false });
+      await subscriber.save({ validateBeforeSave: false });
+
+      res.send({ message: 'Unsubscribe success' });
     } catch (err) {
       console.log(err);
       res.status(500).send(err);

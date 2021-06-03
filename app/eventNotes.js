@@ -17,7 +17,6 @@ const createRouter = () => {
         .populate('creator', 'username');
 
       const EventNotes = await query;
-      console.log(EventNotes);
       res.send(EventNotes);
     } catch (err) {
       console.log(err);
