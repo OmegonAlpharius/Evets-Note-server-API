@@ -26,27 +26,28 @@ const createRouter = () => {
     }
   });
   router.post('/sessions', async (req, res) => {
-    const user = await User.findOne({ username: req.body.username }).populate(
-      'subscribers',
-      'username'
-    );
-
-    const errorMessage = 'Wrong username or password';
-
-    if (!user) return res.status(400).send({ error: errorMessage });
-
-    const isMatch = await user.checkPassword(req.body.password);
-
-    if (!isMatch) return res.status(400).send({ error: errorMessage });
-
-    user.generateToken();
     try {
+      const query = await User.findOne({
+        username: req.body.username,
+      }).populate('subscribers', 'username');
+
+      const user = await query;
+      const errorMessage = 'Wrong username or password';
+
+      if (!user) return res.status(400).send({ error: errorMessage });
+
+      const isMatch = await user.checkPassword(req.body.password);
+
+      if (!isMatch) return res.status(400).send({ error: errorMessage });
+
+      user.generateToken();
+
       await user.save({ validateBeforeSave: false });
+      res.send(user);
     } catch (err) {
       console.log(err);
       res.sendStatus(500);
     }
-    res.send(user);
   });
   router.delete('/sessions', async (req, res) => {
     const token = req.get('Authentication');
@@ -71,7 +72,7 @@ const createRouter = () => {
   router.post('/subscribe', auth, async (req, res) => {
     const subscriberId = req.query.id;
     const user = req.user;
-    if (subscriberId === user._id) {
+    if (subscriberId === user._id.toString()) {
       return res.send({ message: 'Subscribe success' });
     }
 
@@ -102,10 +103,14 @@ const createRouter = () => {
   });
 
   router.get('/subscribers', auth, async (req, res) => {
-    const subscribers = await req.user.populate('subscribers', 'username')
-      .subscribers;
+    const query = User.findById(req.user._id).populate(
+      'subscribers',
+      'username'
+    );
+    const user = await query;
+    console.log(user);
 
-    res.send(subscribers);
+    res.send(user);
   });
 
   router.delete('/subscribers', auth, async (req, res) => {
