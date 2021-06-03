@@ -69,7 +69,7 @@ const createRouter = () => {
     }
   });
 
-  router.post('/subscribe', auth, async (req, res) => {
+  router.post('/subscribers', auth, async (req, res) => {
     const subscriberId = req.query.id;
     const user = req.user;
     if (subscriberId === user._id.toString()) {
