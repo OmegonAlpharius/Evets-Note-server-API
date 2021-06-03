@@ -108,7 +108,6 @@ const createRouter = () => {
       'username'
     );
     const user = await query;
-    console.log(user);
 
     res.send(user);
   });
