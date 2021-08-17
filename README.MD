@@ -8,7 +8,7 @@
 
 1. Перейдите в папку    
    
-    ` cd  homework_94_nikolay_tarassenko `
+    ` cd  Evets-Note-server-API `
 
 1. Установите зависимости 
   
