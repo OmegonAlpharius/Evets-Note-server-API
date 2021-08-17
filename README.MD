@@ -4,7 +4,7 @@
 
 1. Клонируйте репозиторий  
    
-    ` git clone ssh://git@git.attractor-school.com:30022/Tarasenko_Nikolaj/homework_94_nikolay_tarassenko.git  `
+    `git@github.com:OmegonAlpharius/Evets-Note-server-API.git  `
 
 1. Перейдите в папку    
    
